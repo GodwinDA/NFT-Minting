@@ -1,0 +1,30 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+
+// Import the ERC721 standard from OpenZeppelin
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+// the ownable contract contains function that makes sure that contract is managed by the deployer of the contract 
+contract NFTMinting is ERC721, Ownable {
+    uint256 public tokenId;
+
+    constructor() ERC721("MyNFTproject", "MNFTP") Ownable(msg.sender){
+    transferOwnership(msg.sender); // Set the contract deployer as the owner
+}
+    mapping(address => bool) public whitelistedAddresses;
+    modifier onlyWhitelisted() {
+        require(whitelistedAddresses[msg.sender], "Come, wetin u dey find? who whitelisted you?");
+        _;
+    }
+     // Function to add addresses to the whitelist, only the owner can call this
+    function addToWhitelist(address _address) public onlyOwner { //the onlyOwner is from a function from the ownable contract that i imported
+        whitelistedAddresses[_address] = true;
+    }
+    // Minting the NFT, only whitelisted addresses can mint
+    function mintNFT() public onlyWhitelisted {
+        tokenId += 1;
+        _safeMint(msg.sender, tokenId); // The safeMint function is from the openzeppelin that i imported. so it mints the token to the sender's address
+    }
+
+}
